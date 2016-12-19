@@ -22,6 +22,12 @@ package com.esotericsoftware.kryo;
 import java.io.Serializable;
 
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.esotericsoftware.kryo.util.ObjectMap;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import static org.mockito.Mockito.*;
 
 /** @author Nathan Sweet <misc@n4te.com> */
 public class JavaSerializerTest extends KryoTestCase {
@@ -30,6 +36,24 @@ public class JavaSerializerTest extends KryoTestCase {
 		roundTrip(50, 50, "abcdefabcdefabcdefabcdefabcdefabcdefabcdef");
 		roundTrip(12, 12, "meow");
 
+		kryo.register(TestClass.class, new JavaSerializer());
+		TestClass test = new TestClass();
+		test.stringField = "fubar";
+		test.intField = 54321;
+		roundTrip(134, 134, test);
+		roundTrip(134, 134, test);
+		roundTrip(134, 134, test);
+	}
+
+	public void testGraphContextUsage () {
+		final ObjectMap graphContextSpy = spy(kryo.getGraphContext());
+		kryo.setGraphContext(graphContextSpy);
+		doAnswer(invocationOnMock -> {
+			Object result = invocationOnMock.callRealMethod();
+			assertNull(result);
+			System.out.println("Graph context lookup returned null");
+			return result;
+		}).when(graphContextSpy).get(any());
 		kryo.register(TestClass.class, new JavaSerializer());
 		TestClass test = new TestClass();
 		test.stringField = "fubar";

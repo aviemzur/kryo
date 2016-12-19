@@ -1152,6 +1152,11 @@ public class Kryo {
 		return graphContext;
 	}
 
+	/** Setter for tests */
+	public void setGraphContext(ObjectMap graphContext) {
+		this.graphContext = graphContext;
+	}
+
 	/** Returns the number of child objects away from the object graph root. */
 	public int getDepth () {
 		return depth;
